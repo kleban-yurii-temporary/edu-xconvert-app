@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h4 class="text-center">
+    Супер конвертер на основі API!
+</h4>
+<hr />
+<div class="row">
+    <div class="col-md-3">
+        <label>From currency:</label>
+        <select class="form-control" id="from"></select>
+    </div>
+    <div class="col-md-3">
+        <label>To currency:</label>
+        <select class="form-control" id="to">
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label>Amount FROM:</label>
+        <input class="form-control" id="amount" type="number" value="1" />
+    </div>
+    <div class="col-md-2">
+        <label>Amount TO (<strong id="rate">-</strong>):</label>
+        <input class="form-control" id="amountTo" type="number" disabled value="0" />
+    </div>
+    <div class="col-md-2">
+        <br />
+        <a href="#" class="btn btn-primary" id="convert">Convert</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        $(function() {
+
+            $.getJSON("/api/convert/currencies", function(data) {
+
+                $.each(data, function(key, val) {
+                    var appendLine = "<option value='" + key + "'>" + val + " (" + key + ")" + "</option>";
+                    $("#from").append(appendLine);
+                    $("#to").append(appendLine);
+                });
+
+                $("#from").val('@ViewBag.From');
+                $("#to").val('@ViewBag.To');
+                
+            });
+
+            $("#convert").click(function() {
+                
+               var from = $("#from").val();
+                var to = $("#to").val();
+                var amount = $("#amount").val();
+               
+                console.log(from);
+                console.log(to);
+                console.log(amount);
+                
+                $.getJSON("/api/convert/start?from=" + from + "&to=" + to + "&amount=" + amount, function(data) {
+                    $("#amountTo").val(data.amount);  
+                    $("#rate").html(Math.round((data.rate + Number.EPSILON) * 100) / 100);
+                });
+
+            });
+
+        })
+
+    </script>
+}
